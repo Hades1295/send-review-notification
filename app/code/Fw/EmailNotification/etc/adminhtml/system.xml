@@ -15,9 +15,13 @@
                             <label>Enable</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         </field>
+                        <field id="approvetemplateid" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                            <label>Add Template id Here</label>
+                            <comment><![CDATA[Note Add template id]]></comment>
+                        </field>
                         <field id="fromemailaddress" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
                             <label>From Email Address</label>
-                            <comment><![CDATA[NOte this email must be in the SMTP HOST]]></comment>
+                            <comment><![CDATA[Note this email must be in the SMTP HOST]]></comment>
                         </field>
                 </group>
                 <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -26,12 +30,15 @@
                             <label>Enable</label>
                             <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         </field>
-
-                    <field id="addemailaddress" translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
-                        <label>Send an Copy of Email that will receive</label>
-                        <comment><![CDATA[Comma Separated]]>
-                        </comment>
-                    </field>
+                        <field id="templateid" translate="label" type="text" sortOrder="1" showInDefault="1" showInWebsite="0" showInStore="0">
+                            <label>Add Template id Here</label>
+                            <comment><![CDATA[Note Add template id]]></comment>
+                        </field>
+                        <field id="addemailaddress" translate="label comment" type="textarea" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                            <label>Send an Copy of Email that will receive</label>
+                            <comment><![CDATA[Comma Separated]]>
+                            </comment>
+                        </field>
                 </group>
         </section>
     </system>
