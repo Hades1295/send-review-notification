@@ -13,8 +13,7 @@ use Magento\Framework\Message\ManagerInterface;
 use Fw\EmailNotification\Helper\Data;
 
 class SendReviewNotification implements ObserverInterface {
-    
-    
+
     /**
      * @var TransportBuilder
      */
@@ -53,21 +52,20 @@ class SendReviewNotification implements ObserverInterface {
         $this->productRepository = $productRepository;
         $this->datahelper = $datahelper;
     }
+
     public function execute(\Magento\Framework\Event\Observer $observer)
     {   
-            
-        if ($this->datahelper->getAdminEmails() == 1) {
-            try {
+
+        try {
+            if ($this->datahelper->getEmailApprovalReviewStatus()) {
                 // this is an example and you can change template id,fromEmail,toEmail,etc as per your need.
                 $review = $observer->getEvent()->getObject();
                 $customerId = $review->getCustomerId();
-                
                 // Load the customer object
                 $customer = $this->_customerRepositoryInterface->getById($customerId);
-                $templateId = '1'; // template id 
+                $templateId = $this->datahelper->getAdminApprovalTemplateId(); // template id 
                 $fromEmail = $this->datahelper->getAdminEmails();  // sender Email id
-                file_put_contents(BP . '/var/log/oberver.log',print_r($fromEmail, true) . PHP_EOL, FILE_APPEND);
-                $fromName = 'Fw-Fashion Website';              // sender Name
+                $fromName = 'Fw-Fashion Website';             // sender Name
                 $toEmail = $customer->getEmail(); // receiver email id
                 if ($review->getStatusId() == \Magento\Review\Model\Review::STATUS_APPROVED && $customerId) {
                     try {
@@ -83,12 +81,12 @@ class SendReviewNotification implements ObserverInterface {
                             'productImage'=> $product["productImage"],
                             'productPrice'=> $product["special_price"]
                         ];
-             
+    
                         $storeId = $this->storeManager->getStore()->getId();
-             
+    
                         $from = ['email' => $fromEmail, 'name' => $fromName];
                         $this->inlineTranslation->suspend();
-             
+    
                         $storeScope = \Magento\Store\Model\ScopeInterface::SCOPE_STORE;
                         $templateOptions = [
                             'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
@@ -113,13 +111,13 @@ class SendReviewNotification implements ObserverInterface {
                         );
                     }
                 }    
-            } catch (\Throwable $th) {
-                $this->messageManager->addExceptionMessage(
-                    $e,
-                    __('Something went wrong while updating the product(s) status.')
-                );
             }
-           
+        } catch (\Exception $e) {
+            file_put_contents(BP . '/var/log/observer.log',print_r($e->getMessage(), true) . PHP_EOL, FILE_APPEND);
+            $this->messageManager->addExceptionMessage(
+                $e,
+                __('Something went wrong while updating the product(s) status.')
+            );
         }
     }
 
