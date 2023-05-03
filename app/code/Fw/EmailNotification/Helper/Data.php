@@ -48,7 +48,7 @@ class Data extends AbstractHelper
      * Add Email address whol will receive an email address on Review Submission
       * @return mixed
      */ 
-    public function addEmailAddresstoReceive($storeId = null)
+    public function addEmailAddressestoReceive($storeId = null)
     {
         $configPath = 'email/general/addemailaddress';
         return $this->scopeConfig->getValue($configPath, ScopeInterface::SCOPE_STORE, $storeId);
@@ -62,6 +62,12 @@ class Data extends AbstractHelper
     public function getAdminApprovalTemplateId($storeId = null)
     {
         $configPath = 'email/review_approval_display/approvetemplateid';
+        return  $this->scopeConfig->getValue($configPath, ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    public function getAdminEmailReceiveTemplateId($storeId = null)
+    {
+        $configPath =  'email/general/templateid';
         return  $this->scopeConfig->getValue($configPath, ScopeInterface::SCOPE_STORE, $storeId);
     }
 }
