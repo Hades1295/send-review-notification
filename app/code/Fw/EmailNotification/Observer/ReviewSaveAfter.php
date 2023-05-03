@@ -74,48 +74,51 @@ class ReviewSaveAfter implements ObserverInterface
      */ 
     public function execute(Observer $observer)
     {   
-
-        try {
-            $review = $observer->getData('object'); 
-            $customerId = $review->getCustomerId();
-            $customer = $this->_customerRepositoryInterface->getById($customerId);
-            $productId = $review->getEntityPkValue();
-            $product = $this->productRepository->getById($productId);
-            $storeId = $this->_storeManager->getStore()->getId();
-            $templateOptions = array(
-                'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
-                'store' => $storeId
-            );
-            $templateVars = array(
-                'review_title' => $review->getData('title'),
-                'review_text' => $review->getData('detail'),
-                'rating' => $review->getData('rating'),
-                'customer_name' =>$review->getData('nickname'),
-                'product_name' => $product->getName()
-            );
-            $templateId =$this->datahelper->getAdminEmailReceiveTemplateId(); // replace with your template ID
-            // Retrieve admin email addresses from the configuration
-            $adminEmails = $this->datahelper->addEmailAddressestoReceive();
-    
-            // Check if there are multiple email addresses
-            $adminEmails = explode(",", $adminEmails);
-    
-            // Send email to admin(s)
-            foreach($adminEmails as $adminEmail) {
-                $transport = $this->_transportBuilder->setTemplateIdentifier($templateId)
-                    ->setTemplateOptions($templateOptions)
-                    ->setTemplateVars($templateVars)
-                    ->setFrom('general')
-                    ->addTo($adminEmail)
-                    ->getTransport();
-                $transport->sendMessage();
+        if ($this->datahelper->getAdminReviewStatus()) {
+            try {
+                $review = $observer->getData('object'); 
+                $customerId = $review->getCustomerId();
+                $customer = $this->_customerRepositoryInterface->getById($customerId);
+                $productId = $review->getEntityPkValue();
+                $product = $this->productRepository->getById($productId);
+                $storeId = $this->_storeManager->getStore()->getId();
+                $templateOptions = array(
+                    'area' => \Magento\Framework\App\Area::AREA_FRONTEND,
+                    'store' => $storeId
+                );
+                $templateVars = array(
+                    'review_title' => $review->getData('title'),
+                    'review_text' => $review->getData('detail'),
+                    'rating' => $review->getData('rating'),
+                    'customer_name' =>$review->getData('nickname'),
+                    'product_name' => $product->getName()
+                );
+                $templateId =$this->datahelper->getAdminEmailReceiveTemplateId(); // replace with your template ID
+                // Retrieve admin email addresses from the configuration
+                $adminEmails = $this->datahelper->addEmailAddressestoReceive();
+        
+                // Check if there are multiple email addresses
+                $adminEmails = explode(",", $adminEmails);
+        
+                // Send email to admin(s)
+                foreach($adminEmails as $adminEmail) {
+                    $transport = $this->_transportBuilder->setTemplateIdentifier($templateId)
+                        ->setTemplateOptions($templateOptions)
+                        ->setTemplateVars($templateVars)
+                        ->setFrom('general')
+                        ->addTo($adminEmail)
+                        ->getTransport();
+                    $transport->sendMessage();
+                }
+            } catch (\Exception $e) {
+                file_put_contents(BP . '/var/log/observer.log',print_r($e->getMessage(), true) . PHP_EOL, FILE_APPEND);
+                $this->messageManager->addExceptionMessage(
+                    $e,
+                    __('Something went wrong while updating the product(s) status.')
+                );
             }
-        } catch (\Exception $e) {
-            file_put_contents(BP . '/var/log/observer.log',print_r($e->getMessage(), true) . PHP_EOL, FILE_APPEND);
-            $this->messageManager->addExceptionMessage(
-                $e,
-                __('Something went wrong while updating the product(s) status.')
-            );
+           
         }
+
     }
 }
